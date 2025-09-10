@@ -16,10 +16,42 @@ namespace TesteTecnico.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<IActionResult> Register([FromForm] RegisterDto dto)
         {
-            var user = await _userService.RegisterAsync(dto.Name, dto.Email, dto.Password, dto.Role);
-            return Ok(new { user.Id, user.Name, user.Email, user.Role });
+            try
+            {
+                var user = await _userService.RegisterAsync(dto);
+                return Ok(new
+                {
+                    user.Id,
+                    user.Name,
+                    user.Email,
+                    user.Role,
+                    user.Cnpj,
+                    user.CnhNumber,
+                    user.CnhType,
+                    user.CnhImageUrl
+                });
+
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromForm] UpdateUserDto dto)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(id, dto);
+                return Ok(new { message = "Usuário atualizado com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPost("login")]
@@ -31,5 +63,5 @@ namespace TesteTecnico.Controllers
             return Ok(new { token });
         }
     }
-    
+
 }

@@ -20,8 +20,15 @@ namespace TesteTecnico.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateMotorcycleDto dto)
         {
-            var moto = await _service.CreateAsync(dto);
-            return Ok(moto);
+            try
+            {
+                var moto = await _service.CreateAsync(dto);
+                return Ok(moto);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -34,15 +41,29 @@ namespace TesteTecnico.Controllers
         [HttpPut("{id}/plate")]
         public async Task<IActionResult> UpdatePlate(int id, [FromBody] UpdateMotorcycleDto dto)
         {
-            var moto = await _service.UpdatePlateAsync(id, dto.Plate);
-            return Ok(moto);
+            try
+            {
+                var moto = await _service.UpdatePlateAsync(id, dto.Plate);
+                return Ok(moto);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            try
+            {
+                await _service.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

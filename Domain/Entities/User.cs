@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TesteTecnico.Domain.Enums;
 
 namespace TesteTecnico.Domain.Entities
 {
@@ -18,5 +19,19 @@ namespace TesteTecnico.Domain.Entities
 
         [Required]
         public string Role { get; set; }
+
+        [MaxLength(20)]
+        public string Cnpj { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
+
+        [MaxLength(20)]
+        public string CnhNumber { get; set; }
+
+        [MaxLength(3)]
+        public CnhType CnhType { get; set; } // "A", "B" ou "A+B"
+
+        [MaxLength(200)]
+        public string CnhImageUrl { get; set; }
     }
 }

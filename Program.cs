@@ -9,6 +9,7 @@ using Amazon.SQS;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon;
+using System.Text.Json.Serialization;
 
 
 
@@ -48,7 +49,13 @@ builder.Services.AddAWSService<IAmazonSQS>(awsOptions);
 builder.Services.AddScoped<IMotorcycleService, MotorcycleService>();
 builder.Services.AddHostedService<SqsWorker>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
