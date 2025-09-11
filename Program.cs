@@ -47,6 +47,8 @@ var awsOptions = new AWSOptions
 
 builder.Services.AddAWSService<IAmazonSQS>(awsOptions);
 builder.Services.AddScoped<IMotorcycleService, MotorcycleService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
+builder.Services.AddScoped<IMotorcycleNotificationService, MotorcycleNotificationService>();
 builder.Services.AddHostedService<SqsWorker>();
 
 builder.Services.AddControllers()

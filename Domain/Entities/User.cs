@@ -21,17 +21,17 @@ namespace TesteTecnico.Domain.Entities
         public string Role { get; set; }
 
         [MaxLength(20)]
-        public string Cnpj { get; set; }
+        public string? Cnpj { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
 
         [MaxLength(20)]
-        public string CnhNumber { get; set; }
+        public string? CnhNumber { get; set; }
 
         [MaxLength(3)]
-        public CnhType CnhType { get; set; } // "A", "B" ou "A+B"
+        public CnhType? CnhType { get; set; } // "A", "B" ou "A+B"
 
         [MaxLength(200)]
-        public string CnhImageUrl { get; set; }
+        public string? CnhImageUrl { get; set; }
     }
 }

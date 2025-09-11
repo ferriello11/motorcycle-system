@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using System.Text.Json;
+using TesteTecnico.Application.Validators;
 
 namespace TesteTecnico.Application.Services
 {
@@ -24,9 +25,7 @@ namespace TesteTecnico.Application.Services
 
         public async Task<Motorcycle> CreateAsync(CreateMotorcycleDto dto)
         {
-
-            if (await _context.Motorcycles.AnyAsync(m => m.Plate == dto.Plate))
-                throw new Exception("Placa já cadastrada");
+            await ServiceValidator.ValidateUniqueMotorcyclePlateAsync(_context, dto.Plate);
 
             var moto = new Motorcycle
             {
@@ -67,25 +66,31 @@ namespace TesteTecnico.Application.Services
             return await query.ToListAsync();
         }
 
-        public async Task<Motorcycle> UpdatePlateAsync(int id, string newPlate)
+        public async Task<Motorcycle> UpdatePlateAsync(string oldPlate, string newPlate)
         {
-            var moto = await _context.Motorcycles.FindAsync(id);
-            if (moto == null) throw new Exception("Moto não encontrada");
-
-            if (await _context.Motorcycles.AnyAsync(m => m.Plate == newPlate && m.Id != id))
-                throw new Exception("Placa já cadastrada");
+            var moto = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Plate == oldPlate);
+            await ServiceValidator.ValidateMotorcycleExists(_context, oldPlate);
+            await ServiceValidator.ValidateUniqueMotorcyclePlateAsync(_context, newPlate);
 
             moto.Plate = newPlate;
             await _context.SaveChangesAsync();
+
             return moto;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(string plate)
         {
-            var moto = await _context.Motorcycles.FindAsync(id);
-            if (moto == null) throw new Exception("Moto não encontrada");
+            var moto = await _context.Motorcycles
+                .FirstOrDefaultAsync(m => m.Plate == plate);
 
-            // TODO: verificar se não há locações associadas
+            await ServiceValidator.ValidateMotorcycleExists(_context, moto.Plate);
+
+            bool hasRentals = await _context.Rentals
+                .AnyAsync(r => r.MotorcycleId == moto.Id);
+
+            if (hasRentals)
+                throw new Exception("Não é possível deletar a moto, existem locações associadas.");
+
 
             _context.Motorcycles.Remove(moto);
             await _context.SaveChangesAsync();

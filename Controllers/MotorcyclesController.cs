@@ -7,7 +7,7 @@ namespace TesteTecnico.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class MotorcyclesController : ControllerBase
     {
         private readonly IMotorcycleService _service;
@@ -38,12 +38,12 @@ namespace TesteTecnico.Controllers
             return Ok(motos);
         }
 
-        [HttpPut("{id}/plate")]
-        public async Task<IActionResult> UpdatePlate(int id, [FromBody] UpdateMotorcycleDto dto)
+        [HttpPut("plate")]
+        public async Task<IActionResult> UpdatePlate([FromBody] UpdateMotorcycleDto dto)
         {
             try
             {
-                var moto = await _service.UpdatePlateAsync(id, dto.Plate);
+                var moto = await _service.UpdatePlateAsync(dto.OldPlate, dto.NewPlate);
                 return Ok(moto);
             }
             catch (System.Exception ex)
@@ -52,13 +52,13 @@ namespace TesteTecnico.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{plate}")]
+        public async Task<IActionResult> Delete(string plate)
         {
             try
             {
-                await _service.DeleteAsync(id);
-                return NoContent();
+                await _service.DeleteAsync(plate);
+                return Ok(new { message = $"Moto com placa {plate} deletada com sucesso." });
             }
             catch (System.Exception ex)
             {

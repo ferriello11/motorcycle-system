@@ -7,7 +7,7 @@ namespace TesteTecnico.Application.Interfaces
     {
         Task<Motorcycle> CreateAsync(CreateMotorcycleDto dto);
         Task<IEnumerable<Motorcycle>> GetAllAsync(string? plate = null);
-        Task<Motorcycle> UpdatePlateAsync(int id, string newPlate);
-        Task DeleteAsync(int id);
+        Task<Motorcycle> UpdatePlateAsync(string oldPlate, string newPlate);
+        Task DeleteAsync(string plate);
     }
 }

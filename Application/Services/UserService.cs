@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using TesteTecnico.Application.DTOs;
 using TesteTecnico.Application.Interfaces;
+using TesteTecnico.Application.Validators;
 using TesteTecnico.Domain.Entities;
 using TesteTecnico.Domain.Enums;
 using TesteTecnico.Infrastructure.Data;
@@ -29,14 +30,9 @@ namespace TesteTecnico.Application.Services
 
         public async Task<User> RegisterAsync(RegisterDto dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                throw new Exception("Email já cadastrado");
-
-            if (await _context.Users.AnyAsync(u => u.CnhNumber == dto.CnhNumber))
-                throw new Exception("CNH já cadastrado");
-
-            if (await _context.Users.AnyAsync(u => u.Cnpj == dto.Cnpj))
-                throw new Exception("CNPJ já cadastrado");
+            await ServiceValidator.ValidateUniqueEmail(_context, dto.Email);
+            await ServiceValidator.ValidateUniqueCnh(_context, dto.CnhNumber);
+            await ServiceValidator.ValidateUniqueCnpj(_context, dto.Cnpj);
 
             var user = new User
             {
@@ -68,7 +64,6 @@ namespace TesteTecnico.Application.Services
                 user.CnhImageUrl = await SaveCnhFile(dto.CnhFile);
             }
 
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
@@ -77,8 +72,8 @@ namespace TesteTecnico.Application.Services
         public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
         {
             var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-                throw new Exception("Usuário não encontrado.");
+
+            await ServiceValidator.ValidateUserExists(_context, userId);
 
             if (!string.IsNullOrEmpty(dto.Password))
                 user.PasswordHash = dto.Password;
