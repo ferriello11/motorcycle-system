@@ -20,7 +20,6 @@ namespace TesteTecnico.Application.Services
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
-        private readonly IAmazonS3 _s3Client;
 
         public UserService(AppDbContext context, IConfiguration config)
         {
@@ -30,9 +29,7 @@ namespace TesteTecnico.Application.Services
 
         public async Task<User> RegisterAsync(RegisterDto dto)
         {
-            await ServiceValidator.ValidateUniqueEmail(_context, dto.Email);
-            await ServiceValidator.ValidateUniqueCnh(_context, dto.CnhNumber);
-            await ServiceValidator.ValidateUniqueCnpj(_context, dto.Cnpj);
+            await ServiceValidator.ValidateNewUserAsync(_context, dto);
 
             var user = new User
             {
@@ -44,18 +41,7 @@ namespace TesteTecnico.Application.Services
 
             if (dto.Role == UserRole.Deliverer)
             {
-                if (string.IsNullOrEmpty(dto.CnhNumber) || dto.CnhFile == null)
-                    throw new Exception("CNH é obrigatória para entregador.");
-
-                if (!Enum.IsDefined(typeof(CnhType), dto.CnhType))
-                    throw new Exception("Tipo de CNH inválido.");
-
-                if (dto.CnhFile != null)
-                {
-                    var extension = Path.GetExtension(dto.CnhFile.FileName)?.ToLowerInvariant();
-                    if (extension is not ".png" and not ".bmp")
-                        throw new Exception("Formato inválido. Apenas PNG ou BMP são aceitos.");
-                }
+                ServiceValidator.ValidateDelivererData(dto);
 
                 user.Cnpj = dto.Cnpj;
                 user.DateOfBirth = dto.DateOfBirth;
@@ -71,9 +57,9 @@ namespace TesteTecnico.Application.Services
 
         public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
         {
-            var user = await _context.Users.FindAsync(userId);
+            ServiceValidator.ValidateCnhFile(dto.CnhImageUpdate);
 
-            await ServiceValidator.ValidateUserExists(_context, userId);
+            var user = await ServiceValidator.ValidateUserExists(_context, userId);
 
             if (!string.IsNullOrEmpty(dto.Password))
                 user.PasswordHash = dto.Password;

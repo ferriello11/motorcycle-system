@@ -19,23 +19,12 @@ namespace TesteTecnico.Application.Services
 
         public async Task<Rental> CreateRentalAsync(Guid userId, CreateRentalDto dto)
         {
-            var user = await _context.Users.FindAsync(userId);
-            await ServiceValidator.ValidateUserExists(_context, userId);
-            //TODO AJUSTAR PARA RETIRAR AS VALIDAÇÕES E UTILIZAR ORQUESTRADOR PARA ISSO
-            
-            if (user.Role != "Deliverer")
-                throw new Exception("Somente entregadores podem alugar motos.");
-
-            if (user.CnhType != CnhType.A)
-                throw new Exception("Somente entregadores com CNH categoria A podem alugar motos.");
-
-            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Plate == dto.Plate);
-            
-            if (motorcycle == null)
-                throw new Exception("Moto não encontrada.");
+            var user = await ServiceValidator.ValidateRentalUserAsync(_context, userId);
+            var motorcycle = await ServiceValidator.ValidateMotorcycleExists(_context, dto.Plate);
 
             bool isMotorcycleAlredyRented = await _context.Rentals
                 .AnyAsync(r => r.MotorcycleId == motorcycle.Id && r.EndDate == null);
+
             if (isMotorcycleAlredyRented)
                 throw new Exception("Moto já está alocada");
 
@@ -67,12 +56,11 @@ namespace TesteTecnico.Application.Services
 
         public async Task<Rental> ReturnRentalAsync(Guid userId, ReturnRentalDto dto)
         {
-            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Plate == dto.Plate);
-            if (motorcycle == null)
-                throw new Exception("Moto não encontrada.");
+            var motorcycle = await ServiceValidator.ValidateMotorcycleExists(_context, dto.Plate);
 
             var rental = await _context.Rentals
                 .FirstOrDefaultAsync(r => r.MotorcycleId == motorcycle.Id && r.UserId == userId && r.EndDate == null);
+
             if (rental == null)
                 throw new Exception("Locação ativa não encontrada para esta moto e usuário.");
 

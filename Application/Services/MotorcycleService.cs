@@ -68,8 +68,7 @@ namespace TesteTecnico.Application.Services
 
         public async Task<Motorcycle> UpdatePlateAsync(string oldPlate, string newPlate)
         {
-            var moto = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Plate == oldPlate);
-            await ServiceValidator.ValidateMotorcycleExists(_context, oldPlate);
+            var moto = await ServiceValidator.ValidateMotorcycleExists(_context, oldPlate);
             await ServiceValidator.ValidateUniqueMotorcyclePlateAsync(_context, newPlate);
 
             moto.Plate = newPlate;
@@ -80,10 +79,7 @@ namespace TesteTecnico.Application.Services
 
         public async Task DeleteAsync(string plate)
         {
-            var moto = await _context.Motorcycles
-                .FirstOrDefaultAsync(m => m.Plate == plate);
-
-            await ServiceValidator.ValidateMotorcycleExists(_context, moto.Plate);
+            var moto = await ServiceValidator.ValidateMotorcycleExists(_context, plate);
 
             bool hasRentals = await _context.Rentals
                 .AnyAsync(r => r.MotorcycleId == moto.Id);
