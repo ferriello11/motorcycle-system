@@ -48,23 +48,11 @@ POST /deliveries – Criar nova entrega
 
 🐳 Docker
 
-Arquivo docker-compose.yml para PostgreSQL:
+Arquivo docker-compose.yml 
 
-version: '3.8'
-services:
-  db:
-    image: postgres:15
-    container_name: testetecnico-db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: TesteTecnicoDb
-      TZ: "Brazil/East" 
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+docker-compose up --build
 
-volumes:
-  db_data:
+http://localhost:5000/swagger/index.html
+
+
+
