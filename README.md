@@ -29,6 +29,7 @@ Rodar o projeto:
 dotnet run
 
 ⚠️ O appsettings.json já contém todas as configurações necessárias, incluindo conexão com o banco, AWS S3 e Keycloak. (DEIXEI APENAS PARA O TESTE POIS SERA NECESSARIO TER ACESSOS A FILA E S3)
+
 ℹ️ Estamos utilizando db.Database.EnsureCreated(), então as tabelas serão criadas automaticamente ao iniciar o projeto. Para alterações futuras nas entidades
 
 📡 Endpoints Principais da API
